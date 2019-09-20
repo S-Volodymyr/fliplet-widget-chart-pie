@@ -59,6 +59,10 @@
                     value = $.trim(value);
                   }
 
+                  if (!value) {
+                    return;
+                  }
+
                   if (!Array.isArray(value)) {
                     value = [value];
                   }
