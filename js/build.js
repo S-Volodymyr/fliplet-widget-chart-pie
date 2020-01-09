@@ -225,6 +225,10 @@
         ui.flipletCharts[chartId] = new Highcharts.Chart(chartOpt);
       }
 
+      function redrawChart() {
+        ui.flipletCharts[chartId].reflow();
+      }
+
       if (Fliplet.Env.get('interact')) {
         // TinyMCE removes <style> tags, so we've used a <script> tag instead,
         // which will be appended to <body> to apply the styles
@@ -233,9 +237,8 @@
         $(this).find('.chart-styles').remove();
       }
 
-      Fliplet.Hooks.on('appearanceChanged', function () {
-        ui.flipletCharts[chartId].reflow();
-      });
+      Fliplet.Hooks.on('appearanceChanged', redrawChart);
+      Fliplet.Hooks.on('appearanceFileChanged', redrawChart);
 
       refreshData().then(drawChart).catch(function(error){
         console.error(error);
