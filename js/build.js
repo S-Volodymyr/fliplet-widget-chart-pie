@@ -27,10 +27,37 @@
           return Promise.resolve()
         }
 
+        // beforeQueryChart is deprecated
         return Fliplet.Hooks.run('beforeQueryChart', data.dataSourceQuery).then(function() {
-          return Fliplet.DataSources.fetchWithOptions(data.dataSourceQuery)
+          return Fliplet.Hooks.run('beforeChartQuery', {
+            config: data,
+            id: widgetId,
+            uuid: widgetUuid,
+            type: 'pie'
+          });
+        }).then(function() {
+          if (_.isFunction(data.getData)) {
+            var response = data.getData();
+
+            if (!(response instanceof Promise)) {
+              return Promise.resolve(response);
+            }
+
+            return response;
+          }
+
+          return Fliplet.DataSources.fetchWithOptions(data.dataSourceQuery);
         }).then(function(result){
-          return Fliplet.Hooks.run('afterQueryChart', result).then(function() {
+          // afterQueryChart is deprecated
+          return Fliplet.Hooks.run('afterQueryChart', result).then(function () {
+            return Fliplet.Hooks.on('afterChartQuery', {
+              config: data,
+              id: widgetId,
+              uuid: widgetUuid,
+              type: 'pie',
+              records: result
+            });
+          }).then(function () {
             var columns = [];
             data.entries = [];
             data.totalEntries = 0;
@@ -118,14 +145,24 @@
       }
 
       function getLatestData() {
-        setTimeout(function(){
-          refreshData().then(function(){
-            refreshChart();
-            if (data.autoRefresh) {
-              getLatestData();
-            }
-          });
-        }, refreshTimeout);
+        return new Promise(function (resolve, reject) {
+          setTimeout(function () {
+            refreshData().then(function () {
+              if (data.autoRefresh) {
+                getLatestData();
+              }
+
+              refreshChart();
+              resolve();
+            }).catch(function (err) {
+              if (data.autoRefresh) {
+                getLatestData();
+              }
+
+              reject(err);
+            });
+          }, refreshTimeout);
+        });
       }
 
       function drawChart() {
@@ -155,6 +192,16 @@
                 if (data.autoRefresh) {
                   getLatestData();
                 }
+              },
+              render: function () {
+                Fliplet.Hooks.run('afterChartRender', {
+                  chart: ui.flipletCharts[chartId],
+                  chartOptions: chartOpt,
+                  id: data.id,
+                  uuid: data.uuid,
+                  type: 'pie',
+                  config: data
+                });
               }
             }
           },
@@ -222,7 +269,15 @@
           }
         };
         // Create and save chart object
-        ui.flipletCharts[chartId] = new Highcharts.Chart(chartOpt);
+        Fliplet.Hooks.run('beforeChartRender', {
+          chartOptions: chartOpt,
+          id: data.id,
+          uuid: data.uuid,
+          type: 'pie',
+          config: data
+        }).then(function () {
+          ui.flipletCharts[chartId] = new Highcharts.Chart(chartOpt);
+        });
       }
 
       function redrawChart() {
