@@ -139,9 +139,15 @@
       function refreshChart() {
         // Retrieve chart object
         var chart = ui.flipletCharts[chartId];
+
+        if (!chart) {
+          return drawChart();
+        }
+
         // Update values
         chart.series[0].setData(data.entries);
         refreshChartInfo();
+        return Promise.resolve(chart);
       }
 
       function getLatestData() {
@@ -166,118 +172,125 @@
       }
 
       function drawChart() {
-        var colors = [
-          '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
-          '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
-        ];
-        colors.forEach(function eachColor (color, index) {
-          if (!Fliplet.Themes) {
-            return;
-          }
-          colors[index] = Fliplet.Themes.Current.get('chartColor'+(index+1)) || color;
-        });
-        var chartOpt = {
-          chart: {
-            type: 'pie',
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            renderTo: $container.find('.chart-container')[0],
-            style: {
-              fontFamily: (Fliplet.Themes && Fliplet.Themes.Current.get('bodyFontFamily')) || 'sans-serif'
-            },
-            events: {
-              load: function(){
-                refreshChartInfo();
-                if (data.autoRefresh) {
-                  getLatestData();
-                }
-              },
-              render: function () {
-                ui.flipletCharts[chartId] = this;
-                Fliplet.Hooks.run('afterChartRender', {
-                  chart: ui.flipletCharts[chartId],
-                  chartOptions: chartOpt,
-                  id: data.id,
-                  uuid: data.uuid,
-                  type: 'pie',
-                  config: data
-                });
-              }
+        return new Promise(function (resolve, reject) {
+          var colors = [
+            '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
+            '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
+          ];
+          colors.forEach(function eachColor (color, index) {
+            if (!Fliplet.Themes) {
+              return;
             }
-          },
-          colors: colors,
-          title: {
-            text: ''
-          },
-          subtitle: {
-            text: ''
-          },
-          navigation: {
-            buttonOptions: {
+            colors[index] = Fliplet.Themes.Current.get('chartColor'+(index+1)) || color;
+          });
+          var chartOpt = {
+            chart: {
+              type: 'pie',
+              plotBackgroundColor: null,
+              plotBorderWidth: null,
+              plotShadow: false,
+              renderTo: $container.find('.chart-container')[0],
+              style: {
+                fontFamily: (Fliplet.Themes && Fliplet.Themes.Current.get('bodyFontFamily')) || 'sans-serif'
+              },
+              events: {
+                load: function(){
+                  refreshChartInfo();
+                  if (data.autoRefresh) {
+                    getLatestData();
+                  }
+                },
+                render: function () {
+                  ui.flipletCharts[chartId] = this;
+                  Fliplet.Hooks.run('afterChartRender', {
+                    chart: ui.flipletCharts[chartId],
+                    chartOptions: chartOpt,
+                    id: data.id,
+                    uuid: data.uuid,
+                    type: 'pie',
+                    config: data
+                  });
+                  resolve(this);
+                }
+              }
+            },
+            colors: colors,
+            title: {
+              text: ''
+            },
+            subtitle: {
+              text: ''
+            },
+            navigation: {
+              buttonOptions: {
+                enabled: false
+              }
+            },
+            tooltip: {
+              pointFormat: '{series.name}: <strong>{point.percentage:.1f}%</strong> '
+            },
+            plotOptions: {
+              pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                  enabled: data.showDataValues,
+                  format: [
+                    (!data.showDataLegend ? '<strong>{point.name}</strong>: ' : ''),
+                    '{point.y}'
+                  ].join(''),
+                  style: {
+                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                  }
+                },
+                showInLegend: data.showDataLegend
+              }
+            },
+            legend: {
+              itemStyle: {
+                width: '100%'
+              }
+            },
+            series: [{
+              name: data.name,
+              colorByPoint: true,
+              innerSize: '0%',
+              data: data.entries,
+              events: {
+                click: function () {
+                  Fliplet.Analytics.trackEvent({
+                    category: 'chart',
+                    action: 'data_point_interact',
+                    label: 'pie'
+                  });
+                },
+                legendItemClick: function () {
+                  Fliplet.Analytics.trackEvent({
+                    category: 'chart',
+                    action: 'legend_filter',
+                    label: 'pie'
+                  });
+                }
+              }
+            }],
+            credits: {
               enabled: false
             }
-          },
-          tooltip: {
-            pointFormat: '{series.name}: <strong>{point.percentage:.1f}%</strong> '
-          },
-          plotOptions: {
-            pie: {
-              allowPointSelect: true,
-              cursor: 'pointer',
-              dataLabels: {
-                enabled: data.showDataValues,
-                format: [
-                  (!data.showDataLegend ? '<strong>{point.name}</strong>: ' : ''),
-                  '{point.y}'
-                ].join(''),
-                style: {
-                  color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                }
-              },
-              showInLegend: data.showDataLegend
+          };
+          // Create and save chart object
+          Fliplet.Hooks.run('beforeChartRender', {
+            chartOptions: chartOpt,
+            id: data.id,
+            uuid: data.uuid,
+            type: 'pie',
+            config: data
+          }).then(function () {
+            try {
+              new Highcharts.Chart(chartOpt);
+            } catch (e) {
+              return Promise.reject(e);
             }
-          },
-          legend: {
-            itemStyle: {
-              width: '100%'
-            }
-          },
-          series: [{
-            name: data.name,
-            colorByPoint: true,
-            innerSize: '0%',
-            data: data.entries,
-            events: {
-              click: function () {
-                Fliplet.Analytics.trackEvent({
-                  category: 'chart',
-                  action: 'data_point_interact',
-                  label: 'pie'
-                });
-              },
-              legendItemClick: function () {
-                Fliplet.Analytics.trackEvent({
-                  category: 'chart',
-                  action: 'legend_filter',
-                  label: 'pie'
-                });
-              }
-            }
-          }],
-          credits: {
-            enabled: false
-          }
-        };
-        // Create and save chart object
-        Fliplet.Hooks.run('beforeChartRender', {
-          chartOptions: chartOpt,
-          id: data.id,
-          uuid: data.uuid,
-          type: 'pie',
-          config: data
-        }).then(function () {
-          new Highcharts.Chart(chartOpt);
+          }).catch(reject);
         });
       }
 
@@ -298,6 +311,7 @@
 
       refreshData().then(drawChart).catch(function(error){
         console.error(error);
+        getLatestData();
       });
     });
   }
