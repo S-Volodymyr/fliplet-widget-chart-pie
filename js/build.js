@@ -50,7 +50,7 @@
         }).then(function(result){
           // afterQueryChart is deprecated
           return Fliplet.Hooks.run('afterQueryChart', result).then(function () {
-            return Fliplet.Hooks.on('afterChartQuery', {
+            return Fliplet.Hooks.run('afterChartQuery', {
               config: data,
               id: data.id,
               uuid: data.uuid,
