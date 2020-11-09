@@ -3,7 +3,7 @@
   "package": "com.fliplet.chart.pie",
   "version": "1.0.0",
   "icon": "img/icon.png",
-  "tags": ["type:component", "category:charts"],
+  "tags": ["type:component", "category:charts", "themeEngineVersion:1.0.0"],
   "provider_only": false,
   "references": [
     "dataSourceQuery.dataSourceId:dataSource"
