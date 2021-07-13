@@ -194,7 +194,6 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
-
       function resetChart() {
         ui.flipletCharts[chartId].destroy();
         drawChart();
