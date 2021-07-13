@@ -194,6 +194,12 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
+
+      function resetChart() {
+        ui.flipletCharts[chartId].destroy();
+        drawChart();
+      }
+
       function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
         var inheritanceColor = Fliplet.Themes.Current.get(inheritanceColorKey);
         if (inheritanceColor) {
@@ -254,24 +260,26 @@
         }
       });
 
+      function getDeviceType() {
+        if (Modernizr.desktop) {
+          return 'Desktop';
+        } else if (Modernizr.tablet) {
+          return 'Tablet';
+        } else {
+          return '';
+        };
+      }
+
       function drawChart() {
         return new Promise(function(resolve, reject) {
           var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
-          var deviceType;
-          if (Modernizr.desktop) {
-            deviceType = 'Desktop';
-          } else if (Modernizr.tablet) {
-            deviceType = 'Tablet';
-          } else {
-            deviceType = '';
-          };
 
           colors.forEach(function eachColor(color, index) {
             if (!Fliplet.Themes) {
               return;
             }
 
-            var colorKey = 'chartColor' + (index + 1) + deviceType;
+            var colorKey = 'chartColor' + (index + 1) + getDeviceType();
             var newColor = customColors
               ? customColors.values[colorKey]
               : Fliplet.Themes.Current.get(colorKey);
@@ -286,6 +294,7 @@
               inheritColor('secondaryColor', colors, index);
             }
           });
+
           var chartOpt = {
             chart: {
               type: 'pie',
@@ -398,8 +407,7 @@
       }
 
       $(window).resize(function() {
-        ui.flipletCharts[chartId].destroy();
-        drawChart();
+        resetChart();
       });
 
       function redrawChart() {
