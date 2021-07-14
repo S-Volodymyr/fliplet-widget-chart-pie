@@ -406,9 +406,7 @@
       }
 
       $(window).resize(function() {
-        _.debounce(function () {
-          resetChart();
-        }, 10);
+        resetChart();
       });
 
       function redrawChart() {
