@@ -405,7 +405,7 @@
         });
       }
 
-      $(window).resize(function() {
+      $(window).on('resize', function() {
         resetChart();
       });
 
