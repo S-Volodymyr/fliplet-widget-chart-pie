@@ -194,11 +194,6 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
-      function resetChart() {
-        ui.flipletCharts[chartId].destroy();
-        drawChart();
-      }
-
       function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
         var inheritanceColor = Fliplet.Themes.Current.get(inheritanceColorKey);
         if (inheritanceColor) {
@@ -260,12 +255,12 @@
       });
 
       function getDeviceType() {
-        if (Modernizr.desktop) {
-          return 'Desktop';
+        if (Modernizr.mobile) {
+          return '';
         } else if (Modernizr.tablet) {
           return 'Tablet';
         } else {
-          return '';
+          return 'Desktop';
         };
       }
 
@@ -405,13 +400,17 @@
         });
       }
 
-      $(window).on('resize', function() {
-        resetChart();
-      });
+      function resetChart() {
+        drawChart();
+      }
 
       function redrawChart() {
         ui.flipletCharts[chartId].reflow();
       };
+
+      $(window).on('resize', function() {
+        resetChart();
+      });
 
       if (Fliplet.Env.get('interact')) {
         // TinyMCE removes <style> tags, so we've used a <script> tag instead,
