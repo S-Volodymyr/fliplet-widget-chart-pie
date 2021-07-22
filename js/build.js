@@ -258,7 +258,7 @@
           if (typeof newColorsArr !== 'undefined') {
             newColorsArr = newColorsArr;
           } else {
-            newColorsArr = colors2.slice();
+            newColorsArr = colors.slice();
           }
 
           var colorKey = 'chartColor' + (colorIndex + 1) + getDeviceType();
