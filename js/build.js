@@ -14,12 +14,27 @@
       var refreshTimeout = 5000;
       var refreshTimer;
       var updateDateFormat = 'hh:mm:ss a';
-      var colors = [
+      var colors = [];
+      var cashColors = [
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
       ];
-      var chartInstance;
 
+      var colorsSet = {
+        Mobile: {
+          load: true,
+          colors: []
+        },
+        Tablet: {
+          load: true,
+          colors: []
+        },
+        Desktop: {
+          load: true,
+          colors: []
+        }
+       };
+      var chartInstance;
       var chartReady;
       var chartPromise = new Promise(function(resolve) {
         chartReady = resolve;
@@ -196,42 +211,48 @@
 
       function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
         var inheritanceColor = Fliplet.Themes.Current.get(inheritanceColorKey);
-
+        console.log(inheritanceColor);
         if (inheritanceColor) {
           colorsArray[colorIndex] = inheritanceColor;
         }
       }
 
+      function getDeviceType() {
+        if (Modernizr.mobile) {
+          return '';
+        } else if (Modernizr.tablet) {
+          return 'Tablet';
+        } else {
+          return 'Desktop';
+        };
+      }
+
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
-
+        console.log(event);
+        
         if (eventDetail && eventDetail.type === 'colorChange') {
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
 
           var colorIndex = null;
-
           switch (eventDetail.label) {
             case 'Highlight color':
               if (inheritColor1) {
                 colorIndex = 0;
               }
-
               break;
             case 'Secondary color':
               if (inheritColor2) {
                 colorIndex = 1;
               }
-
               break;
             case 'Chart color 1':
               inheritColor1 = false;
-
               break;
             case 'Chart color 2':
               inheritColor2 = false;
-
               break;
             default:
               break;
@@ -239,7 +260,6 @@
 
           if (colorIndex === null) {
             var labelIndex = eventDetail.label.match(/[0-9]{1,2}/);
-
             if (labelIndex === null) {
               return;
             }
@@ -247,38 +267,70 @@
             colorIndex = labelIndex[0] - 1;
           }
 
-          colors[colorIndex] = eventDetail.color;
-
-          chartInstance.update({
-            colors: colors
-          });
+          updateColors(colorIndex, eventDetail.color)
         }
       });
 
+      function updateColors(index, color) {
+        var editColors = getColors()
+        editColors[index] = color
+        chartInstance.update({
+          colors: editColors
+        });
+      }
+
+      function getColor(key, device) {
+        if (!device) {
+          return Fliplet.Themes.Current.get(key)
+        } else {
+          var color = Fliplet.Themes.Current.get(key + device)
+          if(color === 'inherit-tablet') return getColor(key, 'Tablet')
+          else if(color === 'inherit-mobile') return getColor(key)
+          else return color
+        }
+        
+      }
+
+      function genColors() {
+        var deviceType = getDeviceType();
+        colors = cashColors.slice();
+        colors.forEach(function eachColor(color, index) {
+          if (!Fliplet.Themes) {
+            return;
+          }
+          var colorKey = 'chartColor' + (index + 1);
+          var newColor = getColor(colorKey, deviceType);
+          console.log(newColor);
+          if (newColor) {
+            colors[index] = newColor;
+            inheritColor1 = colorKey !== 'chartColor1' + deviceType; // if mobile - colorKey1 = chartColor1
+            inheritColor2 = colorKey !== 'chartColor2' + deviceType;
+          } else if (colorKey === ('chartColor1' + deviceType) && inheritColor1) { //this is for changing inherited colors from fast setup
+            inheritColor('highlightColor', colors, index);
+          } else if (colorKey === ('chartColor2' + deviceType) && inheritColor2) { //this is for changing inherited colors from fast setup
+            inheritColor('secondaryColor', colors, index);
+          }
+        });
+        return colors;
+      }
+
+      function getColors() {
+        var deviceType = getDeviceType();
+
+        if (!deviceType && colorsSet.Mobile.load) {
+          colorsSet.Mobile.colors = genColors();
+          colorsSet.Mobile.load = false;
+        } else if (colorsSet[deviceType] && colorsSet[deviceType].load) {
+          colorsSet[deviceType].colors = genColors();
+          colorsSet[deviceType].load = false;
+        }
+
+        return colorsSet[deviceType ? deviceType : 'Mobile'].colors;
+      }
+
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          var customColors = Fliplet.Themes.Current.getSettingsForWidgetInstance(chartUuid);
-
-          colors.forEach(function eachColor(color, index) {
-            if (!Fliplet.Themes) {
-              return;
-            }
-
-            var colorKey = 'chartColor' + (index + 1);
-            var newColor = customColors
-              ? customColors.values[colorKey]
-              : Fliplet.Themes.Current.get(colorKey);
-
-            if (newColor) {
-              colors[index] = newColor;
-              inheritColor1 = colorKey !== 'chartColor1';
-              inheritColor2 = colorKey !== 'chartColor2';
-            } else if (colorKey === 'chartColor1' && inheritColor1) {
-              inheritColor('highlightColor', colors, index);
-            } else if (colorKey === 'chartColor2' && inheritColor2) {
-              inheritColor('secondaryColor', colors, index);
-            }
-          });
+          var cols = getColors();
           var chartOpt = {
             chart: {
               type: 'pie',
@@ -310,7 +362,7 @@
                 }
               }
             },
-            colors: colors,
+            colors: cols,
             title: {
               text: ''
             },
@@ -392,7 +444,17 @@
 
       function redrawChart() {
         ui.flipletCharts[chartId].reflow();
-      }
+      };
+
+      var debouncedDrawChart = _.debounce(function() {
+        var colors = getColors();
+        console.log('deb', colors);
+        updateColors(colors)
+      }, 10);
+
+      $(window).on('resize', function() {
+        debouncedDrawChart();
+      });
 
       if (Fliplet.Env.get('interact')) {
         // TinyMCE removes <style> tags, so we've used a <script> tag instead,
@@ -402,11 +464,16 @@
         $(this).find('.chart-styles').remove();
       }
 
-      Fliplet.Hooks.on('appearanceChanged', redrawChart);
-      Fliplet.Hooks.on('appearanceFileChanged', redrawChart);
+      Fliplet.Hooks.on('appearanceChanged', function() {
+        redrawChart;
+        //debouncedDrawChart();
+      });
+
+      Fliplet.Hooks.on('appearanceFileChanged', function() {
+        //debouncedDrawChart();
+      });
 
       refreshData().then(drawChart).catch(function(error){
-        console.error(error);
         setRefreshTimer();
       });
 
