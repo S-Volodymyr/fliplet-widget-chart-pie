@@ -62,8 +62,7 @@ var dsQueryProvider = Fliplet.Widget.open('com.fliplet.data-source-query', {
 });
 
 function attachObservers() {
-  dsQueryProvider.then(function(result){
-
+  dsQueryProvider.then(function(result) {
     Fliplet.Widget.save({
       dataSourceQuery: result.data,
       showDataLegend: $('#show_data_legend').is(':checked'),
@@ -71,14 +70,14 @@ function attachObservers() {
       chartName: $('#chart_name').val(),
       showTotalEntries: $('#show_total_entries').is(':checked'),
       autoRefresh: $('#auto_refresh').is(':checked')
-    }).then(function () {
+    }).then(function() {
       Fliplet.Widget.complete();
       Fliplet.Studio.emit('reload-page-preview');
     });
   });
 
   // Fired from Fliplet Studio when the external save button is clicked
-  Fliplet.Widget.onSaveRequest(function () {
+  Fliplet.Widget.onSaveRequest(function() {
     dsQueryProvider.forwardSaveRequest();
   });
 }
