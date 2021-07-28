@@ -314,11 +314,11 @@
 
           if (newColor) {
             colors[index] = newColor;
-            inheritColor1 = colorKey !== 'chartColor1'; // if mobile - colorKey1 = chartColor1
+            inheritColor1 = colorKey !== 'chartColor1';
             inheritColor2 = colorKey !== 'chartColor2';
-          } else if (colorKey === 'chartColor1' && inheritColor1) { //this is for changing inherited colors from fast setup
+          } else if (colorKey === 'chartColor1' && inheritColor1) {
             inheritColor('highlightColor', colors, index);
-          } else if (colorKey === 'chartColor2' && inheritColor2) { //this is for changing inherited colors from fast setup
+          } else if (colorKey === 'chartColor2' && inheritColor2) {
             inheritColor('secondaryColor', colors, index);
           }
         });
