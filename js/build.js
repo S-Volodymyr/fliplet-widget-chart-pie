@@ -205,7 +205,7 @@
       }
 
       function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
-        var inheritanceColor = themeValues[inheritanceColorKey];
+        var inheritanceColor = themeValues ? themeValues[inheritanceColorKey] : Fliplet.Themes.Current.get(inheritanceColorKey);
 
         if (inheritanceColor) {
           colorsArray[colorIndex] = inheritanceColor;
@@ -292,9 +292,10 @@
       // Get color for current device
       function getColor(key, device) {
         if (!device) {
-          return themeValues[key];
+          console.log(themeValues);
+          return themeValues ? themeValues[key] : Fliplet.Themes.Current.get(key);
         } else {
-          var color = themeValues[key + device];
+          var color = themeValues ? themeValues[key + device] : Fliplet.Themes.Current.get(key + device);;
           if(color === 'inherit-tablet') return getColor(key, 'Tablet')
           else if(color === 'inherit-mobile') return getColor(key, '')
           else return color
@@ -328,15 +329,13 @@
 
       // Get colors for device
       function getColors() {
-        if (!deviceType && deviceColors.Mobile.refresh) {
-          deviceColors.Mobile.colors = genColors();
-          deviceColors.Mobile.refresh = false;
-        } else if (deviceColors[deviceType] && deviceColors[deviceType].refresh) {
-          deviceColors[deviceType].colors = genColors();
-          deviceColors[deviceType].refresh = false;
+        var device = deviceType ? deviceType : 'Mobile'
+        if (deviceColors[device] && deviceColors[device].refresh) {
+          deviceColors[device].colors = genColors();
+          deviceColors[device].refresh = false;
         }
 
-        return deviceColors[deviceType ? deviceType : 'Mobile'].colors;
+        return deviceColors[device].colors;
       }
 
       function drawChart() {
@@ -456,7 +455,7 @@
       var debouncedRedrawChart = _.debounce(function() {
         var colors = getColors();
         updateColors(colors)
-      }, 200);
+      }, 100);
 
       $(window).on('resize', function() {
         deviceType = getDeviceType();
