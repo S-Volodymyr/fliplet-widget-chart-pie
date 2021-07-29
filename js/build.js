@@ -20,20 +20,11 @@
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
       ];
-      var deviceType;
+      var deviceType = getDeviceType();
       var deviceColors = {
-        Mobile: {
-          refresh: true,
-          colors: []
-        },
-        Tablet: {
-          refresh: true,
-          colors: []
-        },
-        Desktop: {
-          refresh: true,
-          colors: []
-        }
+        Mobile: [],
+        Tablet: [],
+        Desktop: []
       };
       var chartInstance;
       var chartReady;
@@ -205,7 +196,7 @@
       }
 
       function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
-        var inheritanceColor = themeValues ? themeValues[inheritanceColorKey] : Fliplet.Themes.Current.get(inheritanceColorKey);
+        var inheritanceColor = (themeValues && themeValues.hasOwnProperty(inheritanceColorKey)) ? themeValues[inheritanceColorKey] : Fliplet.Themes.Current.get(inheritanceColorKey);
 
         if (inheritanceColor) {
           colorsArray[colorIndex] = inheritanceColor;
@@ -269,12 +260,10 @@
 
       // Set new colors for chart
       function setThemeValues(colors) {
-        themeValues = colors
-        deviceColors.Mobile.refresh = true;
-        deviceColors.Tablet.refresh = true;
-        deviceColors.Desktop.refresh = true;
-        genColors()
-        var newColors = getColors()
+        themeValues = colors;
+        genColors();
+        var newColors = getColors();
+
         chartInstance.update({
           colors: newColors
         });
@@ -282,23 +271,24 @@
 
       // Updates color for current device
       function updateColors(index, color) {
-        var editColors = getColors()
-        editColors[index] = color
+        var editColors = getColors();
+
+        editColors[index] = color;
         chartInstance.update({
           colors: editColors
         });
       }
 
       // Get color for current device
-      function getColor(key, device) {
+      function getColor(key, device, index) {
         if (!device) {
-          console.log(themeValues);
-          return themeValues ? themeValues[key] : Fliplet.Themes.Current.get(key);
+          return (themeValues && themeValues.hasOwnProperty(key)) ? themeValues[key] : cashColors[index];
         } else {
-          var color = themeValues ? themeValues[key + device] : Fliplet.Themes.Current.get(key + device);;
-          if(color === 'inherit-tablet') return getColor(key, 'Tablet')
-          else if(color === 'inherit-mobile') return getColor(key, '')
-          else return color
+          var color = (themeValues && themeValues.hasOwnProperty(key + device)) ? themeValues[key + device] : (device === 'Tablet' ? 'inherit-mobile' : 'inherit-tablet');
+
+          if(color === 'inherit-tablet') return getColor(key, 'Tablet');
+          else if(color === 'inherit-mobile') return getColor(key, '');
+          else return color;
         }
       }
 
@@ -306,12 +296,13 @@
       function genColors() {
         colors = cashColors.slice();
         colors.forEach(function eachColor(color, index) {
+
           if (!Fliplet.Themes) {
             return;
           }
 
           var colorKey = 'chartColor' + (index + 1);
-          var newColor = getColor(colorKey, deviceType);
+          var newColor = getColor(colorKey, deviceType, index);
 
           if (newColor) {
             colors[index] = newColor;
@@ -329,13 +320,9 @@
 
       // Get colors for device
       function getColors() {
-        var device = deviceType ? deviceType : 'Mobile'
-        if (deviceColors[device] && deviceColors[device].refresh) {
-          deviceColors[device].colors = genColors();
-          deviceColors[device].refresh = false;
-        }
-
-        return deviceColors[device].colors;
+        var device = deviceType ? deviceType : 'Mobile';
+        deviceColors[device] = genColors();
+        return deviceColors[device];
       }
 
       function drawChart() {
@@ -454,7 +441,7 @@
 
       var debouncedRedrawChart = _.debounce(function() {
         var colors = getColors();
-        updateColors(colors)
+        updateColors(colors);
       }, 100);
 
       $(window).on('resize', function() {
