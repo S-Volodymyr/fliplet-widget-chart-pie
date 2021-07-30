@@ -223,6 +223,7 @@
             return;
           }
           if (!eventDetail.widgetMode && instanceTheme.data.widgetInstances.length && instanceTheme.data.widgetInstances[0].values[eventDetail.name]) {
+            console.log('enter return', instanceTheme, eventDetail.name);
             return
           }
 
@@ -268,6 +269,7 @@
         var themeValue = instanceTheme.data.values;
         var widgetValue = instanceTheme.data.widgetInstances.length ? instanceTheme.data.widgetInstances[0].values : {};
         themeValues = Object.assign(themeValue, widgetValue);
+        console.log(themeValue, widgetValue, themeValues);
         genColors();
         var newColors = getColors();
 
