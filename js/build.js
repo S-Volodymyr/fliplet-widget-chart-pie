@@ -222,8 +222,8 @@
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
-          if (!eventDetail.widgetMode && instanceTheme.data.widgetInstances.length && instanceTheme.data.widgetInstances[0].values[eventDetail.name]) {
-            console.log('enter return', instanceTheme, eventDetail.name);
+          if (!eventDetail.widgetMode && instanceTheme.data.widgetInstances.length && instanceTheme.data.widgetInstances[0].values[eventDetail.name + deviceType]) {
+            console.log('enter return', instanceTheme, eventDetail.name, deviceType);
             return
           }
 
