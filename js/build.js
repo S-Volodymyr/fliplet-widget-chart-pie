@@ -216,11 +216,14 @@
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
         
-        if (eventDetail && eventDetail.type === 'savingNewStyles') setThemeValues(eventDetail.values);
-        
+        if (eventDetail && eventDetail.type === 'savingNewStyles') setThemeValues(eventDetail.data);
+
         if (eventDetail && eventDetail.type === 'colorChange') {
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
+          }
+          if (!eventDetail.widgetMode && instanceTheme.data.widgetInstances.length && instanceTheme.data.widgetInstances[0].values[eventDetail.name]) {
+            return
           }
 
           var colorIndex = null;
@@ -259,8 +262,12 @@
       });
 
       // Set new colors for chart
-      function setThemeValues(colors) {
-        themeValues = colors;
+      function setThemeValues(themeData) {
+        instanceTheme.data.values = themeData.values
+        instanceTheme.data.widgetInstances = themeData.widgetInstances
+        var themeValue = instanceTheme.data.values;
+        var widgetValue = instanceTheme.data.widgetInstances.length ? instanceTheme.data.widgetInstances[0].values : {};
+        themeValues = Object.assign(themeValue, widgetValue);
         genColors();
         var newColors = getColors();
 
