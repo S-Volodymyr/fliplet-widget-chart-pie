@@ -222,8 +222,11 @@
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
-          if (!eventDetail.widgetMode && instanceTheme.data.widgetInstances.length && instanceTheme.data.widgetInstances[0].values[eventDetail.name + deviceType]) {
-            console.log('enter return', instanceTheme, eventDetail.name, deviceType);
+          if (
+            !eventDetail.widgetMode &&
+            instanceTheme.data.widgetInstances.length &&
+            instanceTheme.data.widgetInstances[0].values[eventDetail.name + deviceType]
+          ) {
             return
           }
 
@@ -266,11 +269,13 @@
       function setThemeValues(themeData) {
         instanceTheme.data.values = themeData.values
         instanceTheme.data.widgetInstances = themeData.widgetInstances
+
         var themeValue = instanceTheme.data.values;
         var widgetValue = instanceTheme.data.widgetInstances.length ? instanceTheme.data.widgetInstances[0].values : {};
+
         themeValues = Object.assign(themeValue, widgetValue);
-        console.log(themeValue, widgetValue, themeValues);
         genColors();
+
         var newColors = getColors();
 
         chartInstance.update({
