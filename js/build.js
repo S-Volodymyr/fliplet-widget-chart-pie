@@ -32,7 +32,7 @@
         chartReady = resolve;
       });
 
-      console.log(themeValues);
+      console.log(instanceTheme);
 
       function refreshData() {
         if (typeof data.dataSourceQuery !== 'object') {
@@ -311,6 +311,8 @@
       // Get color for current device
       function getColor(key, device, index) {
         if (!device) {
+          console.log(cashColors[index], Fliplet.Themes.Current.get(key));
+
           return (themeValues && themeValues.hasOwnProperty(key)) ? themeValues[key] : cashColors[index];
         }
 
