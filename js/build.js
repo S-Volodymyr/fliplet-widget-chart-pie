@@ -328,7 +328,7 @@
             inheritColor('secondaryColor', colors, index);
           }
         });
-
+        console.debug('genColors', colors)
         return colors;
       }
 
@@ -336,12 +336,14 @@
       function getColors() {
         var device = deviceType ? deviceType : 'Mobile';
         deviceColors[device] = genColors();
+        console.debug('getColors', deviceColors, device);
         return deviceColors[device];
       }
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
           var cols = getColors();
+          console.debug('drawChart', cols);
           var chartOpt = {
             chart: {
               type: 'pie',
