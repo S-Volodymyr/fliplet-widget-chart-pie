@@ -12,7 +12,7 @@
       var themeValues = instanceTheme.data.values;
 
       if (instanceTheme.data.widgetInstances) {
-        Object.assign(themeValues, instanceTheme.data.widgetInstances);
+        Object.assign(themeValues, instanceTheme.data.widgetInstances[0].values);
       }
 
       var inheritColor1 = true;
