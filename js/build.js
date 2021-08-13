@@ -1,14 +1,14 @@
-(function(){
-  window.ui = window.ui || {}
+(function() {
+  window.ui = window.ui || {};
   ui.flipletCharts = ui.flipletCharts || {};
 
   Fliplet.Chart = Fliplet.Widget.Namespace('chart');
 
   function init() {
-    Fliplet.Widget.instance('chart-pie-1-1-0', function (data) {
+    Fliplet.Widget.instance('chart-pie-1-1-0', function(data) {
       var chartId = data.id;
       var $container = $(this);
-      var instanceTheme = Fliplet.Themes.Current.getInstance()
+      var instanceTheme = Fliplet.Themes.Current.getInstance();
       var themeValues = instanceTheme.data.values;
       var inheritColor1 = true;
       var inheritColor2 = true;
@@ -32,15 +32,18 @@
         chartReady = resolve;
       });
 
+      console.log(themeValues);
+
       function refreshData() {
         if (typeof data.dataSourceQuery !== 'object') {
           data.entries = [
-            {name: 'A', y: 3, sliced: true, selected: true},
-            {name: 'B', y: 2},
-            {name: 'C', y: 1}
+            { name: 'A', y: 3, sliced: true, selected: true },
+            { name: 'B', y: 2 },
+            { name: 'C', y: 1 }
           ];
           data.totalEntries = 6;
-          return Promise.resolve()
+
+          return Promise.resolve();
         }
 
         // beforeQueryChart is deprecated
@@ -63,9 +66,9 @@
           }
 
           return Fliplet.DataSources.fetchWithOptions(data.dataSourceQuery);
-        }).then(function(result){
+        }).then(function(result) {
           // afterQueryChart is deprecated
-          return Fliplet.Hooks.run('afterQueryChart', result).then(function () {
+          return Fliplet.Hooks.run('afterQueryChart', result).then(function() {
             return Fliplet.Hooks.run('afterChartQuery', {
               config: data,
               id: data.id,
@@ -73,13 +76,16 @@
               type: 'pie',
               records: result
             });
-          }).then(function () {
+          }).then(function() {
             var columns = [];
+
             data.entries = [];
             data.totalEntries = 0;
+
             if (!result.dataSource.columns.length) {
               return Promise.resolve();
             }
+
             switch (data.dataSourceQuery.selectedModeIdx) {
               case 0:
               default:
@@ -87,8 +93,8 @@
                 data.name = data.dataSourceQuery.columns.category;
                 result.dataSourceEntries.forEach(function(row, i) {
                   data.entries.push({
-                    name: row[data.dataSourceQuery.columns.category] || 'Category ' + (i+1),
-                    y: parseInt(row[data.dataSourceQuery.columns.value]) || 0
+                    name: row[data.dataSourceQuery.columns.category] || 'Category ' + (i + 1),
+                    y: parseInt(row[data.dataSourceQuery.columns.value], 10) || 0
                   });
                 });
                 break;
@@ -125,24 +131,26 @@
                 });
                 break;
             }
-            data.entries = _.reverse(_.sortBy(data.entries, function(o){
+
+            data.entries = _.reverse(_.sortBy(data.entries, function(o) {
               return o.y;
             }));
+
             if (data.entries.length) {
               data.entries[0].sliced = true;
               data.entries[0].selected = true;
             }
 
             // SAVES THE TOTAL NUMBER OF ROW/ENTRIES
-            data.totalEntries = _.reduce(data.entries, function(sum, o){
+            data.totalEntries = _.reduce(data.entries, function(sum, o) {
               return sum + o.y;
             }, 0);
 
             return Promise.resolve();
-          }).catch(function(error){
+          }).catch(function(error) {
             return Promise.reject(error);
           });
-        })
+        });
       }
 
       function refreshChartInfo() {
@@ -163,6 +171,7 @@
         // Update values
         chart.series[0].setData(data.entries);
         refreshChartInfo();
+
         return Promise.resolve(chart);
       }
 
@@ -172,13 +181,13 @@
           refreshTimer = null;
         }
 
-        return refreshData().then(function () {
+        return refreshData().then(function() {
           if (data.autoRefresh) {
             setRefreshTimer();
           }
 
           return refreshChart();
-        }).catch(function (err) {
+        }).catch(function(err) {
           if (data.autoRefresh) {
             setRefreshTimer();
           }
@@ -208,39 +217,44 @@
           return '';
         } else if (Modernizr.tablet) {
           return 'Tablet';
-        } else {
-          return 'Desktop';
-        };
+        }
+
+        return 'Desktop';
+        ;
       }
 
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
-        
+
         if (eventDetail && eventDetail.type === 'savingNewStyles') setThemeValues(eventDetail.data);
 
         if (eventDetail && eventDetail.type === 'colorChange') {
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
+
           if (
             !eventDetail.widgetMode &&
             instanceTheme.data.widgetInstances.length &&
             instanceTheme.data.widgetInstances[0].values[eventDetail.name + deviceType]
           ) {
-            return
+            return;
           }
 
           var colorIndex = null;
+
           switch (eventDetail.label) {
             case 'Highlight color':
               if (inheritColor1) {
                 colorIndex = 0;
               }
+
               break;
             case 'Secondary color':
               if (inheritColor2) {
                 colorIndex = 1;
               }
+
               break;
             case 'Chart color 1':
               inheritColor1 = false;
@@ -254,6 +268,7 @@
 
           if (colorIndex === null) {
             var labelIndex = eventDetail.label.match(/[0-9]{1,2}/);
+
             if (labelIndex === null) {
               return;
             }
@@ -261,14 +276,14 @@
             colorIndex = labelIndex[0] - 1;
           }
 
-          updateColors(colorIndex, eventDetail.color)
+          updateColors(colorIndex, eventDetail.color);
         }
       });
 
       // Set new colors for chart
       function setThemeValues(themeData) {
-        instanceTheme.data.values = themeData.values
-        instanceTheme.data.widgetInstances = themeData.widgetInstances
+        instanceTheme.data.values = themeData.values;
+        instanceTheme.data.widgetInstances = themeData.widgetInstances;
 
         var themeValue = instanceTheme.data.values;
         var widgetValue = instanceTheme.data.widgetInstances.length ? instanceTheme.data.widgetInstances[0].values : {};
@@ -297,20 +312,21 @@
       function getColor(key, device, index) {
         if (!device) {
           return (themeValues && themeValues.hasOwnProperty(key)) ? themeValues[key] : cashColors[index];
-        } else {
-          var color = (themeValues && themeValues.hasOwnProperty(key + device)) ? themeValues[key + device] : (device === 'Tablet' ? 'inherit-mobile' : 'inherit-tablet');
-
-          if(color === 'inherit-tablet') return getColor(key, 'Tablet');
-          else if(color === 'inherit-mobile') return getColor(key, '');
-          else return color;
         }
+
+        // eslint-disable-next-line no-nested-ternary
+        var color = (themeValues && themeValues.hasOwnProperty(key + device)) ? themeValues[key + device] : (device === 'Tablet' ? 'inherit-mobile' : 'inherit-tablet');
+
+        if (color === 'inherit-tablet') return getColor(key, 'Tablet');
+        else if (color === 'inherit-mobile') return getColor(key, '');
+
+        return color;
       }
 
       // Generate colors for current device
       function genColors() {
         colors = cashColors.slice();
         colors.forEach(function eachColor(color, index) {
-
           if (!Fliplet.Themes) {
             return;
           }
@@ -328,22 +344,27 @@
             inheritColor('secondaryColor', colors, index);
           }
         });
-        console.log('genColors', colors)
+        console.log('genColors', colors);
+
         return colors;
       }
 
       // Get colors for device
       function getColors() {
         var device = deviceType ? deviceType : 'Mobile';
+
         deviceColors[device] = genColors();
         console.log('getColors', deviceColors, device);
+
         return deviceColors[device];
       }
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
           var cols = getColors();
+
           console.log('drawChart', cols);
+
           var chartOpt = {
             chart: {
               type: 'pie',
@@ -355,13 +376,14 @@
                 fontFamily: (Fliplet.Themes && Fliplet.Themes.Current.get('bodyFontFamily')) || 'sans-serif'
               },
               events: {
-                load: function(){
+                load: function() {
                   refreshChartInfo();
+
                   if (data.autoRefresh) {
                     setRefreshTimer();
                   }
                 },
-                render: function () {
+                render: function() {
                   ui.flipletCharts[chartId] = this;
                   Fliplet.Hooks.run('afterChartRender', {
                     chart: ui.flipletCharts[chartId],
@@ -418,14 +440,14 @@
               innerSize: '0%',
               data: data.entries,
               events: {
-                click: function () {
+                click: function() {
                   Fliplet.Analytics.trackEvent({
                     category: 'chart',
                     action: 'data_point_interact',
                     label: 'pie'
                   });
                 },
-                legendItemClick: function () {
+                legendItemClick: function() {
                   Fliplet.Analytics.trackEvent({
                     category: 'chart',
                     action: 'legend_filter',
@@ -438,6 +460,7 @@
               enabled: false
             }
           };
+
           // Create and save chart object
           Fliplet.Hooks.run('beforeChartRender', {
             chartOptions: chartOpt,
@@ -445,7 +468,7 @@
             uuid: data.uuid,
             type: 'pie',
             config: data
-          }).then(function () {
+          }).then(function() {
             try {
               chartInstance = new Highcharts.Chart(chartOpt);
             } catch (e) {
@@ -457,6 +480,7 @@
 
       var debouncedRedrawChart = _.debounce(function() {
         var colors = getColors();
+
         updateColors(colors);
       }, 100);
 
@@ -485,9 +509,10 @@
     });
   }
 
-  Fliplet().then(function(){
+  Fliplet().then(function() {
     var debounceLoad = _.debounce(init, 500, { leading: true });
-    Fliplet.Studio.onEvent(function (event) {
+
+    Fliplet.Studio.onEvent(function(event) {
       if (event.detail.event === 'reload-widget-instance') {
         debounceLoad();
       }
