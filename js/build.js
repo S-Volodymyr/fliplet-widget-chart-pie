@@ -10,6 +10,11 @@
       var $container = $(this);
       var instanceTheme = Fliplet.Themes.Current.getInstance();
       var themeValues = instanceTheme.data.values;
+
+      if (instanceTheme.data.widgetInstances) {
+        Object.assign(themeValues, instanceTheme.data.widgetInstances);
+      }
+
       var inheritColor1 = true;
       var inheritColor2 = true;
       var refreshTimeout = 5000;
