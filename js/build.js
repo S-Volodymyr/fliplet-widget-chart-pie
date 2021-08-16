@@ -11,7 +11,7 @@
       var instanceTheme = Fliplet.Themes.Current.getInstance();
       var themeValues = instanceTheme.data.values;
 
-      if (instanceTheme.data.widgetInstances) {
+      if (instanceTheme.data.hasOwnProperty('widgetInstances')) {
         Object.assign(themeValues, instanceTheme.data.widgetInstances[0].values);
       }
 
@@ -36,8 +36,6 @@
       var chartPromise = new Promise(function(resolve) {
         chartReady = resolve;
       });
-
-      console.log(instanceTheme);
 
       function refreshData() {
         if (typeof data.dataSourceQuery !== 'object') {
@@ -225,7 +223,6 @@
         }
 
         return 'Desktop';
-        ;
       }
 
       Fliplet.Studio.onEvent(function(event) {
@@ -316,8 +313,6 @@
       // Get color for current device
       function getColor(key, device, index) {
         if (!device) {
-          console.log(cashColors[index], Fliplet.Themes.Current.get(key));
-
           return (themeValues && themeValues.hasOwnProperty(key)) ? themeValues[key] : cashColors[index];
         }
 
@@ -351,7 +346,6 @@
             inheritColor('secondaryColor', colors, index);
           }
         });
-        console.log('genColors', colors);
 
         return colors;
       }
@@ -361,7 +355,6 @@
         var device = deviceType ? deviceType : 'Mobile';
 
         deviceColors[device] = genColors();
-        console.log('getColors', deviceColors, device);
 
         return deviceColors[device];
       }
@@ -369,8 +362,6 @@
       function drawChart() {
         return new Promise(function(resolve, reject) {
           var cols = getColors();
-
-          console.log('drawChart', cols);
 
           var chartOpt = {
             chart: {
