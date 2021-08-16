@@ -361,7 +361,7 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          var cols = getColors();
+          var chartColors = getColors();
 
           var chartOpt = {
             chart: {
@@ -395,7 +395,7 @@
                 }
               }
             },
-            colors: cols,
+            colors: chartColors,
             title: {
               text: ''
             },
