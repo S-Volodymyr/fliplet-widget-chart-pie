@@ -8,11 +8,11 @@
     Fliplet.Widget.instance('chart-pie-1-1-0', function(data) {
       var chartId = data.id;
       var $container = $(this);
-      var instanceTheme = Fliplet.Themes.Current.getInstance();
-      var themeValues = instanceTheme.data.values;
+      var themeInstance = Fliplet.Themes.Current.getInstance();
+      var themeValues = themeInstance.data.values;
 
-      if (instanceTheme.data.hasOwnProperty('widgetInstances')) {
-        Object.assign(themeValues, instanceTheme.data.widgetInstances[0].values);
+      if (themeInstance.data.hasOwnProperty('widgetInstances')) {
+        Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
       }
 
       var inheritColor1 = true;
@@ -237,8 +237,8 @@
 
           if (
             !eventDetail.widgetMode &&
-            instanceTheme.data.widgetInstances.length &&
-            instanceTheme.data.widgetInstances[0].values[eventDetail.name + deviceType]
+            themeInstance.data.widgetInstances.length &&
+            themeInstance.data.widgetInstances[0].values[eventDetail.name + deviceType]
           ) {
             return;
           }
@@ -284,11 +284,11 @@
 
       // Set new colors for chart
       function setThemeValues(themeData) {
-        instanceTheme.data.values = themeData.values;
-        instanceTheme.data.widgetInstances = themeData.widgetInstances;
+        themeInstance.data.values = themeData.values;
+        themeInstance.data.widgetInstances = themeData.widgetInstances;
 
-        var themeValue = instanceTheme.data.values;
-        var widgetValue = instanceTheme.data.widgetInstances.length ? instanceTheme.data.widgetInstances[0].values : {};
+        var themeValue = themeInstance.data.values;
+        var widgetValue = themeInstance.data.widgetInstances.length ? themeInstance.data.widgetInstances[0].values : {};
 
         themeValues = Object.assign(themeValue, widgetValue);
         genColors();
