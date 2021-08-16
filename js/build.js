@@ -11,7 +11,7 @@
       var themeInstance = Fliplet.Themes.Current.getInstance();
       var themeValues = themeInstance.data.values;
 
-      if (themeInstance.data.hasOwnProperty('widgetInstances')) {
+      if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
         Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
       }
 
