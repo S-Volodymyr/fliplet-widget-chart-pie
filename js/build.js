@@ -9,6 +9,7 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
+      var widgetId = themeInstance.data.id;
       var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
@@ -223,8 +224,6 @@
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
 
-        console.log(eventDetail);
-
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
           setThemeValues(eventDetail.data);
         }
@@ -289,6 +288,10 @@
 
         var themeValue = themeInstance.data.values;
         var widgetValue = themeInstance.data.widgetInstances.length ? themeInstance.data.widgetInstances[0].values : {};
+        var id = themeInstance.data.widgetInstances.length && themeInstance.data.widgetInstances[0].id;
+
+        console.log('data: ', themeInstance, themeData);
+        console.log('id: ', id, widgetId);
 
         themeValues = Object.assign(themeValue, widgetValue);
 
