@@ -223,6 +223,8 @@
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
 
+        console.log(eventDetail);
+
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
           setThemeValues(eventDetail.data);
         }
