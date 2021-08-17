@@ -9,7 +9,7 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
-      var themeValues = themeInstance.data.values;
+      var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
         Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
@@ -21,7 +21,7 @@
       var refreshTimer;
       var updateDateFormat = 'hh:mm:ss a';
       var colors = [];
-      var cashColors = [
+      var defaultColors = [
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
       ];
@@ -207,12 +207,8 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
-      function inheritColor(inheritanceColorKey, colorsArray, colorIndex) {
-        var inheritanceColor = (themeValues && themeValues.hasOwnProperty(inheritanceColorKey)) ? themeValues[inheritanceColorKey] : Fliplet.Themes.Current.get(inheritanceColorKey);
-
-        if (inheritanceColor) {
-          colorsArray[colorIndex] = inheritanceColor;
-        }
+      function getThemeColor(colorKey) {
+        return (themeValues && themeValues.hasOwnProperty(colorKey)) ? themeValues[colorKey] : Fliplet.Themes.Current.get(colorKey);
       }
 
       function getDeviceType() {
@@ -228,7 +224,9 @@
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
 
-        if (eventDetail && eventDetail.type === 'savingNewStyles') setThemeValues(eventDetail.data);
+        if (eventDetail && eventDetail.type === 'savingNewStyles') {
+          setThemeValues(eventDetail.data);
+        }
 
         if (eventDetail && eventDetail.type === 'colorChange') {
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
@@ -237,6 +235,7 @@
 
           if (
             !eventDetail.widgetMode &&
+            themeInstance.data.hasOwnProperty('widgetInstances') &&
             themeInstance.data.widgetInstances.length &&
             themeInstance.data.widgetInstances[0].values[eventDetail.name + deviceType]
           ) {
@@ -291,7 +290,6 @@
         var widgetValue = themeInstance.data.widgetInstances.length ? themeInstance.data.widgetInstances[0].values : {};
 
         themeValues = Object.assign(themeValue, widgetValue);
-        genColors();
 
         var newColors = getColors();
 
@@ -302,48 +300,52 @@
 
       // Updates color for current device
       function updateColors(index, color) {
-        var editColors = getColors();
+        var colors = getColors();
 
-        editColors[index] = color;
+        colors[index] = color;
         chartInstance.update({
-          colors: editColors
+          colors: colors
         });
       }
 
       // Get color for current device
-      function getColor(key, device, index) {
+      function getColor(key, device) {
         if (!device) {
-          return (themeValues && themeValues.hasOwnProperty(key)) ? themeValues[key] : cashColors[index];
+          return (themeValues && themeValues.hasOwnProperty(key)) && themeValues[key];
         }
 
         // eslint-disable-next-line no-nested-ternary
         var color = (themeValues && themeValues.hasOwnProperty(key + device)) ? themeValues[key + device] : (device === 'Tablet' ? 'inherit-mobile' : 'inherit-tablet');
 
-        if (color === 'inherit-tablet') return getColor(key, 'Tablet');
-        else if (color === 'inherit-mobile') return getColor(key, '');
+        if (color === 'inherit-tablet') {
+          return getColor(key, 'Tablet');
+        } else if (color === 'inherit-mobile') {
+          return getColor(key, '');
+        }
 
         return color;
       }
 
       // Generate colors for current device
-      function genColors() {
-        colors = cashColors.slice();
-        colors.forEach(function eachColor(color, index) {
-          if (!Fliplet.Themes) {
-            return;
-          }
+      function generateColors() {
+        colors = defaultColors.slice();
 
+        if (!Fliplet.Themes) {
+          return;
+        }
+
+        colors.forEach(function(defaultColor, index) {
           var colorKey = 'chartColor' + (index + 1);
-          var newColor = getColor(colorKey, deviceType, index);
+          var color = getColor(colorKey, deviceType) || defaultColor;
 
-          if (newColor) {
-            colors[index] = newColor;
-            inheritColor1 = colorKey !== 'chartColor1';
-            inheritColor2 = colorKey !== 'chartColor2';
-          } else if (colorKey === 'chartColor1' && inheritColor1) {
-            inheritColor('highlightColor', colors, index);
+          colors[index] = color;
+          inheritColor1 = colorKey !== 'chartColor1';
+          inheritColor2 = colorKey !== 'chartColor2';
+
+          if (colorKey === 'chartColor1' && inheritColor1) {
+            colors[index] = getThemeColor('highlightColor') || color;
           } else if (colorKey === 'chartColor2' && inheritColor2) {
-            inheritColor('secondaryColor', colors, index);
+            colors[index] = getThemeColor('secondaryColor') || color;
           }
         });
 
@@ -354,7 +356,7 @@
       function getColors() {
         var device = deviceType ? deviceType : 'Mobile';
 
-        deviceColors[device] = genColors();
+        deviceColors[device] = generateColors();
 
         return deviceColors[device];
       }
