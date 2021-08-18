@@ -12,7 +12,7 @@
       var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        console.log(themeInstance);
+        console.log(themeInstance, chartId);
 
         if (chartId === themeInstance.data.widgetInstances[0].id) {
           Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
@@ -228,6 +228,8 @@
         var eventDetail = event.detail;
 
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
+          console.log('savingNewStyles', chartId, eventDetail.widgetId);
+
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
@@ -236,6 +238,8 @@
         }
 
         if (eventDetail && eventDetail.type === 'colorChange') {
+          console.log('colorChange', chartId, eventDetail.widgetId);
+
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
