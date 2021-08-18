@@ -9,11 +9,14 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
-      var widgetId = themeInstance.data.id;
       var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
+        console.log(themeInstance);
+
+        if (chartId === themeInstance.data.widgetInstances[0].id) {
+          Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
+        }
       }
 
       var inheritColor1 = true;
