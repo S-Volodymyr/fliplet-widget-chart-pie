@@ -13,10 +13,11 @@
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
         console.log(themeInstance, chartId);
-
-        if (chartId === themeInstance.data.widgetInstances[0].id) {
-          Object.assign(themeValues, themeInstance.data.widgetInstances[0].values);
-        }
+        themeInstance.data.widgetInstances.forEach(function(widgetProp) {
+          if (chartId === widgetProp.id) {
+            Object.assign(themeValues, widgetProp.values);
+          }
+        });
       }
 
       var inheritColor1 = true;
@@ -244,11 +245,11 @@
             return;
           }
 
+          var widgetColors = getWidgetColors(themeInstance.data.widgetInstances);
+
           if (
             !eventDetail.widgetMode &&
-            themeInstance.data.hasOwnProperty('widgetInstances') &&
-            themeInstance.data.widgetInstances.length &&
-            themeInstance.data.widgetInstances[0].values[eventDetail.name + deviceType]
+            widgetColors[eventDetail.name + deviceType]
           ) {
             return;
           }
@@ -299,7 +300,7 @@
         themeInstance.data.widgetInstances = themeData.widgetInstances;
 
         var themeValue = themeInstance.data.values;
-        var widgetValue = themeInstance.data.widgetInstances.length ? themeInstance.data.widgetInstances[0].values : {};
+        var widgetValue = getWidgetColors(themeInstance.data.widgetInstances);
 
         themeValues = Object.assign(themeValue, widgetValue);
 
@@ -308,6 +309,18 @@
         chartInstance.update({
           colors: newColors
         });
+      }
+
+      function getWidgetColors(widgets) {
+        var widgetColors = {};
+
+        widgets.forEach(function(widget) {
+          if (widget.id === chartId) {
+            Object.assign(widgetColors, widget.values);
+          }
+        });
+
+        return widgetColors;
       }
 
       // Updates color for current device
