@@ -225,6 +225,10 @@
         var eventDetail = event.detail;
 
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
+          if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
+            return;
+          }
+
           setThemeValues(eventDetail.data);
         }
 
@@ -283,15 +287,12 @@
 
       // Set new colors for chart
       function setThemeValues(themeData) {
+        console.log(themeInstance, themeData);
         themeInstance.data.values = themeData.values;
         themeInstance.data.widgetInstances = themeData.widgetInstances;
 
         var themeValue = themeInstance.data.values;
         var widgetValue = themeInstance.data.widgetInstances.length ? themeInstance.data.widgetInstances[0].values : {};
-        var id = themeInstance.data.widgetInstances.length && themeInstance.data.widgetInstances[0].id;
-
-        console.log('data: ', themeInstance, themeData);
-        console.log('id: ', id, widgetId);
 
         themeValues = Object.assign(themeValue, widgetValue);
 
