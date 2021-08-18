@@ -14,6 +14,8 @@
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
         console.log(themeInstance, chartId);
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
+          console.log(widgetProp);
+
           if (chartId === widgetProp.id) {
             Object.assign(themeValues, widgetProp.values);
           }
