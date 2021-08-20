@@ -392,8 +392,9 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          debugger;
           var chartColors = getColors();
+
+          console.log(chartColors);
 
           var chartOpt = {
             chart: {
