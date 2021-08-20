@@ -16,7 +16,7 @@
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
           if (chartId === widgetProp.id) {
             console.log('if', widgetProp.values);
-            _.assignIn(themeValues, widgetProp.values);
+            _.assign(themeValues, widgetProp.values);
           }
         });
       }
