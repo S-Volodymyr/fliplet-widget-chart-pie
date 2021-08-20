@@ -215,8 +215,6 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
-      debugger;
-
       function getThemeColor(colorKey) {
         return (themeValues && themeValues.hasOwnProperty(colorKey)) ? themeValues[colorKey] : Fliplet.Themes.Current.get(colorKey);
       }
@@ -394,6 +392,7 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
+          debugger;
           var chartColors = getColors();
 
           var chartOpt = {
