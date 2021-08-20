@@ -215,6 +215,8 @@
         refreshTimer = setTimeout(refresh, refreshTimeout);
       }
 
+      debugger;
+
       function getThemeColor(colorKey) {
         return (themeValues && themeValues.hasOwnProperty(colorKey)) ? themeValues[colorKey] : Fliplet.Themes.Current.get(colorKey);
       }
