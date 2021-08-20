@@ -343,8 +343,15 @@
           return (themeValues && themeValues.hasOwnProperty(key)) && themeValues[key];
         }
 
-        // eslint-disable-next-line no-nested-ternary
-        var color = (themeValues && themeValues.hasOwnProperty(key + device)) ? themeValues[key + device] : (device === 'Tablet' ? 'inherit-mobile' : 'inherit-tablet');
+        var color;
+
+        if (themeValues && themeValues.hasOwnProperty(key + device)) {
+          color = themeValues[key + device];
+        } else if (device === 'Tablet') {
+          color = 'inherit-mobile';
+        } else {
+          color = 'inherit-tablet';
+        }
 
         if (color === 'inherit-tablet') {
           return getColor(key, 'Tablet');
@@ -392,6 +399,8 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
+          console.log('draw');
+
           var chartColors = getColors();
 
           console.log(chartColors);
