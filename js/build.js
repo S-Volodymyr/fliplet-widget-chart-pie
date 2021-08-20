@@ -9,12 +9,15 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
-      var themeValues = themeInstance.data.values || {};
+      var themeValues = themeInstance.data.values ? Object.assign({}, themeInstance.data.values) : {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
+        console.log(themeInstance, themeValues, chartId);
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
           if (chartId === widgetProp.id) {
-            themeValues = Object.assign(widgetProp.values, themeValues);
+            console.log('if', themeValues, widgetProp.values);
+            Object.assign(themeValues, widgetProp.values);
+            console.log('if2 ', themeValues, _.assign(themeValues, widgetProp.values));
           }
         });
       }
