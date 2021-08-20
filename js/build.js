@@ -535,6 +535,7 @@
         $(this).find('.chart-styles').remove();
       }
 
+      console.log('refresh');
       refreshData().then(drawChart).catch(function() {
         setRefreshTimer();
       });
