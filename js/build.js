@@ -12,12 +12,9 @@
       var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        console.log(themeInstance, themeValues, chartId);
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
           if (chartId === widgetProp.id) {
-            console.log('if',themeValues, widgetProp.values);
-            _.assign(themeValues, widgetProp.values);
-            console.log('if2 ', themeValues, _.assign(themeValues, widgetProp.values));
+            themeValues = Object.assign(widgetProp.values, themeValues);
           }
         });
       }
