@@ -12,15 +12,16 @@
       var themeValues = themeInstance.data.values || {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        console.log(themeInstance, chartId);
+        console.log(themeInstance, themeValues, chartId);
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
-          console.log(widgetProp);
-
           if (chartId === widgetProp.id) {
-            Object.assign(themeValues, widgetProp.values);
+            console.log('if', widgetProp.values);
+            _.assignIn(themeValues, widgetProp.values);
           }
         });
       }
+
+      console.log('tv ', themeValues);
 
       var inheritColor1 = true;
       var inheritColor2 = true;
@@ -297,7 +298,7 @@
 
       // Set new colors for chart
       function setThemeValues(themeData) {
-        console.log(themeInstance, themeData);
+        console.log('stv', themeInstance, themeData);
         themeInstance.data.values = themeData.values;
         themeInstance.data.widgetInstances = themeData.widgetInstances;
 
