@@ -12,17 +12,12 @@
       var themeValues = themeInstance.data.values ? Object.assign({}, themeInstance.data.values) : {};
 
       if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        console.log(themeInstance, themeValues, chartId);
         themeInstance.data.widgetInstances.forEach(function(widgetProp) {
           if (chartId === widgetProp.id) {
-            console.log('if', themeValues, widgetProp.values);
             Object.assign(themeValues, widgetProp.values);
-            console.log('if2 ', themeValues, _.assign(themeValues, widgetProp.values));
           }
         });
       }
-
-      console.log('tv ', themeValues);
 
       var inheritColor1 = true;
       var inheritColor2 = true;
@@ -233,8 +228,6 @@
         var eventDetail = event.detail;
 
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
-          console.log('savingNewStyles', chartId, eventDetail.widgetId);
-
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
@@ -243,8 +236,6 @@
         }
 
         if (eventDetail && eventDetail.type === 'colorChange') {
-          console.log('colorChange', chartId, eventDetail.widgetId);
-
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
           }
@@ -299,7 +290,6 @@
 
       // Set new colors for chart
       function setThemeValues(themeData) {
-        console.log('stv', themeInstance, themeData);
         themeInstance.data.values = themeData.values;
         themeInstance.data.widgetInstances = themeData.widgetInstances;
 
@@ -317,6 +307,10 @@
 
       function getWidgetColors(widgets) {
         var widgetColors = {};
+
+        if (!widgets) {
+          return widgetColors;
+        }
 
         widgets.forEach(function(widget) {
           if (widget.id === chartId) {
@@ -399,11 +393,7 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          console.log('draw');
-
           var chartColors = getColors();
-
-          console.log(chartColors);
 
           var chartOpt = {
             chart: {
@@ -535,8 +525,9 @@
         $(this).find('.chart-styles').remove();
       }
 
-      console.log('refresh');
-      refreshData().then(drawChart).catch(function() {
+      refreshData().then(function() {
+        drawChart();
+      }).catch(function() {
         setRefreshTimer();
       });
 
