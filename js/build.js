@@ -525,9 +525,8 @@
         $(this).find('.chart-styles').remove();
       }
 
-      refreshData().then(function() {
-        drawChart();
-      }).catch(function() {
+      refreshData().then(drawChart).catch(function(error) {
+        console.error(error);
         setRefreshTimer();
       });
 
