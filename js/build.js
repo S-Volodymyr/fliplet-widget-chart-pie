@@ -9,15 +9,13 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
-      var themeValues = themeInstance.data.values ? Object.assign({}, themeInstance.data.values) : {};
+      var themeValues = Object.assign({}, themeInstance.data.values);
 
-      if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        themeInstance.data.widgetInstances.forEach(function(widgetProp) {
-          if (chartId === widgetProp.id) {
-            Object.assign(themeValues, widgetProp.values);
-          }
-        });
-      }
+      _.forEach(themeInstance.data.widgetInstances, function(widgetProp) {
+        if (chartId === widgetProp.id) {
+          Object.assign(themeValues, widgetProp.values);
+        }
+      });
 
       var inheritColor1 = true;
       var inheritColor2 = true;
@@ -242,10 +240,7 @@
 
           var widgetColors = getWidgetColors(themeInstance.data.widgetInstances);
 
-          if (
-            !eventDetail.widgetMode &&
-            widgetColors[eventDetail.name + deviceType]
-          ) {
+          if (!eventDetail.widgetMode && widgetColors[eventDetail.name + deviceType]) {
             return;
           }
 
