@@ -9,17 +9,13 @@
       var chartId = data.id;
       var $container = $(this);
       var themeInstance = Fliplet.Themes.Current.getInstance();
-      var themeValues = themeInstance.data.values ? Object.assign({}, themeInstance.data.values) : {};
+      var themeValues = Object.assign({}, themeInstance.data.values);
 
-      if (themeInstance.data.hasOwnProperty('widgetInstances') && themeInstance.data.widgetInstances.length) {
-        themeInstance.data.widgetInstances.forEach(function(widgetProp) {
-          console.log(widgetProp);
-
-          if (chartId === widgetProp.id) {
-            Object.assign(themeValues, widgetProp.values);
-          }
-        });
-      }
+      _.forEach(themeInstance.data.widgetInstances, function(widgetProp) {
+        if (chartId === widgetProp.id) {
+          Object.assign(themeValues, widgetProp.values);
+        }
+      });
 
       var inheritColor1 = true;
       var inheritColor2 = true;
@@ -229,8 +225,6 @@
       Fliplet.Studio.onEvent(function(event) {
         var eventDetail = event.detail;
 
-        console.log(eventDetail);
-
         if (eventDetail && eventDetail.type === 'savingNewStyles') {
           if (eventDetail.widgetId && eventDetail.widgetId !== chartId) {
             return;
@@ -246,10 +240,7 @@
 
           var widgetColors = getWidgetColors(themeInstance.data.widgetInstances);
 
-          if (
-            !eventDetail.widgetMode &&
-            widgetColors[eventDetail.name + deviceType]
-          ) {
+          if (!eventDetail.widgetMode && widgetColors[eventDetail.name + deviceType]) {
             return;
           }
 
@@ -397,11 +388,7 @@
 
       function drawChart() {
         return new Promise(function(resolve, reject) {
-          console.log('draw');
-
           var chartColors = getColors();
-
-          console.log(chartColors);
 
           var chartOpt = {
             chart: {
