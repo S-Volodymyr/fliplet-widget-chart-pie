@@ -8,7 +8,13 @@
     Fliplet.Widget.instance('chart-pie-1-1-0', function(data) {
       var chartId = data.id;
       var $container = $(this);
-      var themeInstance = Fliplet.Themes.Current.getInstance();
+      // var themeInstance = Fliplet.Themes.Current.getInstance();
+      var themeInstance = {
+        data: {
+          values: {},
+          widgetInstances: []
+        }
+      };
       var themeValues = Object.assign({}, themeInstance.data.values);
 
       _.forEach(themeInstance.data.widgetInstances, function(widgetProp) {
@@ -37,7 +43,7 @@
         chartReady = resolve;
       });
 
-      $container.translate()
+      $container.translate();
 
       function refreshData() {
         if (typeof data.dataSourceQuery !== 'object') {
@@ -97,9 +103,8 @@
                 // Plot the data as is
                 data.name = data.dataSourceQuery.columns.category;
                 result.dataSourceEntries.forEach(function(row, i) {
-                  var categoryNumber = TN(i + 1)
                   data.entries.push({
-                    name: row[data.dataSourceQuery.columns.category] || T('widgets.chart.pie.category') + ' ' + categoryNumber,
+                    name: row[data.dataSourceQuery.columns.category] || T('widgets.chart.pie.category') + ' ' + TN(i + 1),
                     y: parseInt(row[data.dataSourceQuery.columns.value], 10) || 0
                   });
                 });
@@ -161,9 +166,9 @@
 
       function refreshChartInfo() {
         // Update total count
-        $container.find('.total').html(data.totalEntries);
+        $container.find('.total').html(TN(data.totalEntries));
         // Update last updated time
-        $container.find('.updatedAt').html(TD(new Date(), {format: 'LTS'}));
+        $container.find('.updatedAt').html(TD(new Date(), { format: 'LTS' }));
       }
 
       function refreshChart() {
