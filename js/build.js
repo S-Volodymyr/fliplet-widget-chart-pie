@@ -97,9 +97,8 @@
                 // Plot the data as is
                 data.name = data.dataSourceQuery.columns.category;
                 result.dataSourceEntries.forEach(function(row, i) {
-                  var categoryNumber = TN(i + 1)
                   data.entries.push({
-                    name: row[data.dataSourceQuery.columns.category] || T('widgets.chart.pie.category') + ' ' + categoryNumber,
+                    name: row[data.dataSourceQuery.columns.category] || T('widgets.chart.pie.category') + ' ' + TN(i + 1),
                     y: parseInt(row[data.dataSourceQuery.columns.value], 10) || 0
                   });
                 });
