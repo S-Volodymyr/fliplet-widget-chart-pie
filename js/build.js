@@ -8,7 +8,13 @@
     Fliplet.Widget.instance('chart-pie-1-1-0', function(data) {
       var chartId = data.id;
       var $container = $(this);
-      var themeInstance = Fliplet.Themes.Current.getInstance();
+      // var themeInstance = Fliplet.Themes.Current.getInstance();
+      var themeInstance = {
+        data: {
+          values: {},
+          widgetInstances: []
+        }
+      };
       var themeValues = Object.assign({}, themeInstance.data.values);
 
       _.forEach(themeInstance.data.widgetInstances, function(widgetProp) {
@@ -21,7 +27,6 @@
       var inheritColor2 = true;
       var refreshTimeout = 5000;
       var refreshTimer;
-      var updateDateFormat = 'hh:mm:ss a';
       var defaultColors = [
         '#00abd1', '#ed9119', '#7D4B79', '#F05865', '#36344C',
         '#474975', '#8D8EA6', '#FF5722', '#009688', '#E91E63'
@@ -96,15 +101,16 @@
                 // Plot the data as is
                 data.name = data.dataSourceQuery.columns.category;
                 result.dataSourceEntries.forEach(function(row, i) {
+                  var categoryNumber = TN(i + 1)
                   data.entries.push({
-                    name: row[data.dataSourceQuery.columns.category] || 'Category ' + (i + 1),
+                    name: row[data.dataSourceQuery.columns.category] || T('widgets.chart.pie.category') + ' ' + categoryNumber,
                     y: parseInt(row[data.dataSourceQuery.columns.value], 10) || 0
                   });
                 });
                 break;
               case 1:
                 // Summarise data
-                data.name = 'Count of ' + data.dataSourceQuery.columns.column;
+                data.name = T('widgets.chart.pie.count') + ' ' + data.dataSourceQuery.columns.column;
                 result.dataSourceEntries.forEach(function(row) {
                   var value = row[data.dataSourceQuery.columns.column];
 
@@ -161,7 +167,7 @@
         // Update total count
         $container.find('.total').html(data.totalEntries);
         // Update last updated time
-        $container.find('.updatedAt').html(moment().format(updateDateFormat));
+        $container.find('.updatedAt').html(TD(new Date(), {format: 'LTS'}));
       }
 
       function refreshChart() {
