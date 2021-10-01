@@ -1,0 +1,14 @@
+{
+  "widgets": {
+    "chart": {
+      "pie": {
+        "title": "Pie Chart",
+        "instruction": "Start configuring your component and the chart will appear here.",
+        "total": "<i class=\"fa fa-tachometer\"></i> Total<br><span class=\"total\">&mdash;</span>",
+        "update": "<i class=\"fa fa-clock-o\"></i> Last updated<br><span class=\"updatedAt\">&mdash;</span>",
+        "category": "Category",
+        "count": "Count of"
+      }
+    }
+  }
+}

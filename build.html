@@ -6,12 +6,12 @@
       <div class="row">
         {{#if showTotalEntries}}
         <div class="col-xs-6 {{#unless autoRefresh}}col-xs-offset-3{{/unless}}">
-          <div class="chart-total"><i class="fa fa-tachometer"></i> Total<br><span class="total">&mdash;</span></div>
+          <div class="chart-total" data-translate="[html]widgets.chart.pie.total"><i class="fa fa-tachometer"></i> Total<br><span class="total">&mdash;</span></div>
         </div>
         {{/if}}
         {{#if autoRefresh}}
         <div class="col-xs-6 {{#unless showTotalEntries}}col-xs-offset-3{{/unless}}">
-          <div class="chart-updatedAt"><i class="fa fa-clock-o"></i> Last updated<br><span class="updatedAt">&mdash;</span></div>
+          <div class="chart-updatedAt" data-translate="[html]widgets.chart.pie.update"><i class="fa fa-clock-o"></i> Last updated<br><span class="updatedAt">&mdash;</span></div>
         </div>
         {{/if}}
       </div>
@@ -22,8 +22,8 @@
       <div class="chart-placeholder">
         <div class="chart-container"></div>
         <div class="chart-placeholder-text">
-          <h3>Pie Chart</h3>
-          <p>Start configuring your component and the chart will appear here.</p>
+          <h3 data-translate="widgets.chart.pie.title">Pie Chart</h3>
+          <p data-translate="widgets.chart.pie.instruction">Start configuring your component and the chart will appear here.</p>
         </div>
       </div>
     </div>
