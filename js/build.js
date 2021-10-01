@@ -8,7 +8,13 @@
     Fliplet.Widget.instance('chart-pie-1-1-0', function(data) {
       var chartId = data.id;
       var $container = $(this);
-      var themeInstance = Fliplet.Themes.Current.getInstance();
+      // var themeInstance = Fliplet.Themes.Current.getInstance();
+      var themeInstance = {
+        data: {
+          values: {},
+          widgetInstances: []
+        }
+      };
       var themeValues = Object.assign({}, themeInstance.data.values);
 
       _.forEach(themeInstance.data.widgetInstances, function(widgetProp) {
