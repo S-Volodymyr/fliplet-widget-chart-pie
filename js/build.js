@@ -43,6 +43,8 @@
         chartReady = resolve;
       });
 
+      $container.translate()
+
       function refreshData() {
         if (typeof data.dataSourceQuery !== 'object') {
           data.entries = [
